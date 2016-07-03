@@ -153,8 +153,10 @@ def main(argv):
     # Write summary buffer
     summary_buf = StringIO.StringIO()
     summary_buf.write(printHeader2("Summary"))
-    summary_buf.write(formatLine(str(len(last_x_days_of_completions)) + " completed tasks moved " + str(len(goals_moved)) + " out of " + str(len(goal_projects)) + " goals forward."))
-    summary_buf.write(formatLine(str(total_tasks_prioritized) + " tasks are prioritized which will move " + str(len(goals_prioritized)) + " out of " + str(len(goal_projects)) + " goals forward."))
+    summary_buf.write(formatLine(str(len(last_x_days_of_completions)) + " completed tasks moved " +
+        str(len(goals_moved)) + " out of " + str(len(goal_projects)) + " goals forward."))
+    summary_buf.write(formatLine(str(total_tasks_prioritized) + " tasks are prioritized which will move " +
+        str(len(goals_prioritized)) + " out of " + str(len(goal_projects)) + " goals forward."))
     summary_buf.write(formatLine(""))
     # Write list of goals that had no movement
     if len(goals_not_moved) > 0:
