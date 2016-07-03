@@ -1,6 +1,6 @@
-# #goals
+# #goals.py
 
-A goals review tool for todo.txt users who do a weekly review of tasks, projects, and goals.
+A goal progress reporter for todo.txt users who do a weekly (or less often) review of tasks and projects.
 
 ## Usage
     python \#goals.py [todo.txt] [done.txt] [#goals.txt]
@@ -19,4 +19,3 @@ Displays a textual report that totals how many tasks you completed associated wi
 ## Work in progress
 
 Doesn't quite function as described just yet. See the issue tracker for details on work in progress.
-
