@@ -36,6 +36,7 @@ import datetime
 import time
 import collections
 import StringIO
+from collections import OrderedDict
 
 # From Google's sample code
 # try:
@@ -98,12 +99,17 @@ def main(argv):
     # TODO Check variable typing and show appropriate error messages
     todo_file = argv[0]
     done_file = argv[1]
-    projects_file = argv[2]
+    goals_file = argv[2]
     # TODO If this arg doesn't exist default to 7 (last week or so)
     number_days_str = argv[3]
     number_days_int = int(number_days_str)
 
-    goal_projects = get_goal_projects(projects_file)
+    try:
+        goal_projects = get_goal_projects(goals_file)
+    except ValueError as e:
+        print (str(e))
+        usage()
+        sys.exit(2)
 
     last_x_days = get_last_x_days(number_days_int)
 
@@ -150,7 +156,7 @@ def main(argv):
         if goal in goal_prioritized:
             total_prioritized = len(goal_prioritized[goal])
 
-        goal_header = goal[3:] + " - " + str(total_done) + " done, " + str(total_prioritized) + " prioritized"
+        goal_header = goal + " - " + str(total_done) + " done, " + str(total_prioritized) + " prioritized"
         goals_buf.write(print_title(goal_header))
 
         if total_done > 0:
@@ -193,9 +199,9 @@ def main(argv):
         if goal in goal_completions:
             total_done = len(goal_completions[goal])
             if total_done == most_progressed_project_total:
-                most_progressed_projects.append(goal[3:])
+                most_progressed_projects.append(goal)
             if total_done == least_progressed_project_total:
-                least_progressed_projects.append(goal[3:])
+                least_progressed_projects.append(goal)
 
     # Write summary buffer
     summary_buf = StringIO.StringIO()
@@ -212,12 +218,12 @@ def main(argv):
     if len(goals_not_moved) > 0:
         summary_buf.write(format_line("Goals with no progress:"))
         for goal in goals_not_moved:
-            summary_buf.write(format_line("    " + goal[3:]))
+            summary_buf.write(format_line("    " + goal))
     # Write list of goals that are not prioritized
     if len(goals_not_prioritized) > 0:
         summary_buf.write(format_line("Goals that are not prioritized:"))
         for goal in goals_not_prioritized:
-            summary_buf.write(format_line("    " + goal[3:]))
+            summary_buf.write(format_line("    " + goal))
 
     # Warnings
     warnings_buf = StringIO.StringIO()
@@ -238,7 +244,6 @@ def main(argv):
     # Warnings
     print (warnings_buf.getvalue())
     warnings_buf.close()
-
 
 def get_total_prioritized_tasks(todotxt_file):
     total = 0
@@ -286,27 +291,30 @@ def get_goal_prioritized(goal_projects, project_prioritized):
     return goal_prioritized
 
 # Return the goal/project list as a dictionary of arrays goalProjects[goal] = projects[]
-def get_goal_projects(projects_file):
+def get_goal_projects(goals_file):
     try:
-        goal_projects = {}
-        f = open (projects_file, "r")
+        goal_projects = OrderedDict()
+        f = open (goals_file, "r")
         for line in f:
             words = line.split()
-            for word in words:
-                # Project
-                if word[0:1] == "+":
-                    current_project = word
-                # Goal
-                if word[0:1] == "#":
-                    if word not in goal_projects:
-                        goal_projects[word] = [current_project];
+            for index, word in enumerate(words):
+                if index == 0:
+                    # Goal
+                    if word[0:1] == "#":
+                        current_goal = word
+                        goal_projects[current_goal] = []
                     else:
-                        goal_projects[word].append(current_project)
+                        raise ValueError(format_line("GOALS FILE FORMAT ERROR: The first word on each line in %s should be a #goal, this word is %s."% (goals_file,word,)))
+                else:
+                    # Project
+                    if word[0:1] == "+":
+                        goal_projects[current_goal].append(word)
+                    else:
+                        raise ValueError(format_line("GOALS FILE FORMAT ERROR: Any words following a #goal on each line in %s should be a +project, this word is %s."% (goals_file,word,)))
         f.close()
-        goal_projects_ordered = collections.OrderedDict(sorted(goal_projects.items()))
-        return goal_projects_ordered
+        return goal_projects
     except IOError:
-        print(format_line("ERROR:  The file named %s could not be read."% (projects_file, )))
+        print(format_line("ERROR: The file %s could not be read."% (goals_file, )))
         usage()
         sys.exit(2)
 
