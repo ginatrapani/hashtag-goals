@@ -137,7 +137,10 @@ def main(argv):
 
     # Write report to buffer: For each item in goal_projects, print the goal, the number of tasks completed,
     #   then each project and the number of tasks completed
-    goals_buf = StringIO.StringIO()
+    try:
+        goals_buf = StringIO.StringIO()
+    except AttributeError:
+        goals_buf = StringIO()
 
     goals_not_moved = []
     goals_moved = []
@@ -207,7 +210,11 @@ def main(argv):
                 least_progressed_projects.append(goal)
 
     # Write summary buffer
-    summary_buf = StringIO.StringIO()
+    try:
+        summary_buf = StringIO.StringIO()
+    except AttributeError:
+        summary_buf = StringIO()
+
     summary_buf.write(print_header_2("Summary"))
     summary_buf.write(format_line(str(len(last_x_days_of_completions)) + " completed tasks moved " +
         str(len(goals_moved)) + " out of " + str(len(goal_projects)) + " goals forward."))
@@ -229,7 +236,10 @@ def main(argv):
             summary_buf.write(format_line("    " + goal))
 
     # Warnings
-    warnings_buf = StringIO.StringIO()
+    try:
+        warnings_buf = StringIO.StringIO()
+    except AttributeError:
+        warnings_buf = StringIO()
     # Completed project warnings
     warnings_buf.write(cross_check_projects(project_completions, goal_projects))
     # Prioritized project warnings
