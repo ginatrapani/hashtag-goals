@@ -418,6 +418,7 @@ def cross_check_projects(projects, goal_projects):
                 goal_in_project = True
         if goal_in_project == False:
             return format_line("WARNING: Project " + project + " not in goal.")
+        return ''
 
 def get_gcal_credentials():
     """Gets valid user credentials from storage.
