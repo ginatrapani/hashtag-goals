@@ -41,12 +41,22 @@ except ImportError:
     from io import StringIO
 from collections import OrderedDict
 
-# From Google's sample code
-# try:
-#     import argparse
-#     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-# except ImportError:
-#     flags = None
+# Process arguments
+try:
+    import argparse
+    parser = argparse.ArgumentParser(parents=[tools.argparser])
+    parser.add_argument('--todo', dest='todo_file', metavar='todo.txt', type=str, nargs='?',
+                    help='Properly-formatted todo.txt file. See todotxt.com.')
+    parser.add_argument('--done', dest='done_file', metavar='done.txt', type=str, nargs='?',
+                    help='Properly-formatted done.txt file. See todotxt.com.')
+    parser.add_argument('--goals', dest='goals_file', metavar='#goals.txt', type=str, nargs='?',
+                    help='A #goals.txt file which lists one #goal followed by any number of +projects associated with it per line.')
+    parser.add_argument('--days', dest='number_days_int', metavar='total days', type=int, nargs='?',
+                    help='The number of days you want to review. Defaults to 7 for a weekly review.',
+                    default=7)
+    flags = parser.parse_args()
+except ImportError:
+    flags = None
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
@@ -64,9 +74,6 @@ __license__ = "GPL"
 __history__ = """
 1.0 - Initial version
 """
-
-def usage():
-    print("USAGE:  %s [todo.txt] [done.txt] [#goals.txt] [total days]" % (sys.argv[0], ))
 
 def separator(c, r=42):
     sep = ""
@@ -93,31 +100,17 @@ def format_line(text):
         return "    " + text + "\n"
 
 def main(argv):
-    # make sure you have all your args
-    if len(argv) < 4:
-       usage()
-       sys.exit(2)
-
-    # Get params
-    # TODO Check variable typing and show appropriate error messages
-    todo_file = argv[0]
-    done_file = argv[1]
-    goals_file = argv[2]
-    # TODO If this arg doesn't exist default to 7 (last week or so)
-    number_days_str = argv[3]
-    number_days_int = int(number_days_str)
-
     try:
-        goal_projects = get_goal_projects(goals_file)
+        goal_projects = get_goal_projects(flags.goals_file)
     except ValueError as e:
         print (str(e))
-        usage()
+        parser.print_help()
         sys.exit(2)
 
-    last_x_days = get_last_x_days(number_days_int)
+    last_x_days = get_last_x_days(flags.number_days_int)
 
-    last_x_days_of_completions = get_last_x_days_of_completions(done_file, last_x_days)
-    last_x_days_of_completions_from_calendar = get_last_x_days_of_completions_from_calendar(get_gcal(number_days_int))
+    last_x_days_of_completions = get_last_x_days_of_completions(flags.done_file, last_x_days)
+    last_x_days_of_completions_from_calendar = get_last_x_days_of_completions_from_calendar(get_gcal(flags.number_days_int))
     last_x_days_of_completions.extend(last_x_days_of_completions_from_calendar)
 
     project_completions = get_project_completions(last_x_days_of_completions)
@@ -125,12 +118,12 @@ def main(argv):
     goal_completions = get_goal_completions(goal_projects, project_completions)
 
     # Next week's prioritizations
-    project_prioritized = get_project_prioritized_tasks(todo_file);
-    upcoming_events = get_gcal(number_days_int, False)
+    project_prioritized = get_project_prioritized_tasks(flags.todo_file);
+    upcoming_events = get_gcal(flags.number_days_int, False)
     project_upcoming_events = get_project_upcoming_events(upcoming_events)
     project_prioritized.update(project_upcoming_events)
 
-    total_tasks_prioritized = get_total_prioritized_tasks(todo_file)
+    total_tasks_prioritized = get_total_prioritized_tasks(flags.todo_file)
     total_tasks_prioritized += get_total_scheduled_project_events(upcoming_events)
 
     goal_prioritized = get_goal_prioritized(goal_projects, project_prioritized)
@@ -247,7 +240,7 @@ def main(argv):
 
     # Output report
     # Title
-    print(format_line("Goal Review for the past " + number_days_str + " days"))
+    print(format_line("Goal Review for the past " + str(flags.number_days_int) + " days"))
     # Summary
     print(summary_buf.getvalue())
     summary_buf.close()
@@ -328,7 +321,7 @@ def get_goal_projects(goals_file):
         return goal_projects
     except IOError:
         print(format_line("ERROR: The file %s could not be read."% (goals_file, )))
-        usage()
+        parser.print_help()
         sys.exit(2)
 
 # Get the last X days as an array of todo.txt-formatted dates.
@@ -353,7 +346,7 @@ def get_last_x_days_of_completions(done_file, last_x_days):
         return last_x_days_of_completions
     except IOError:
         print(format_line("ERROR:  The file named %s could not be read."% (done_file, )))
-        usage()
+        parser.print_help()
         sys.exit(2)
 
 # Return last x days of calendar events with project notations (tasks that were scheduled and completed).
