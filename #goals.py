@@ -35,7 +35,10 @@ from datetime import datetime, timedelta
 import datetime
 import time
 import collections
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 from collections import OrderedDict
 
 # From Google's sample code
