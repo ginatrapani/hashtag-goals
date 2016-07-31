@@ -62,7 +62,7 @@ except ImportError:
 # at ~/.credentials/calendar-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Google Calendar API Python Quickstart'
+APPLICATION_NAME = 'Hashtag Goals for Google Calendar'
 
 
 __version__ = "1.0"
@@ -118,10 +118,8 @@ def main(argv):
     goal_completions = get_goal_completions(goal_projects, project_completions)
 
     # Next week's prioritizations
-    project_prioritized = get_project_prioritized_tasks(flags.todo_file);
     upcoming_events = get_gcal(flags.number_days_int, False)
-    project_upcoming_events = get_project_upcoming_events(upcoming_events)
-    project_prioritized.update(project_upcoming_events)
+    project_prioritized = get_project_prioritized_tasks_and_events(flags.todo_file, upcoming_events)
 
     total_tasks_prioritized = get_total_prioritized_tasks(flags.todo_file)
     total_tasks_prioritized += get_total_scheduled_project_events(upcoming_events)
@@ -372,8 +370,8 @@ def get_project_completions(last_x_days_of_completions):
                     project_completions[word].append(task)
     return project_completions
 
-# Return an array of projects with their associated tasks.
-def get_project_prioritized_tasks(todotxt_file):
+# Return an array of projects with their associated tasks and events.
+def get_project_prioritized_tasks_and_events(todotxt_file, events):
     project_prioritized = {}
     f = open (todotxt_file, "r")
     for task in f:
@@ -388,11 +386,6 @@ def get_project_prioritized_tasks(todotxt_file):
                 else:
                     project_prioritized[word].append(task)
     f.close()
-    return project_prioritized
-
-# Return an array of projects with their associated upcoming events.
-def get_project_upcoming_events(events):
-    project_prioritized = {}
     for event in events:
         words = event['summary'].split()
         for word in words:
