@@ -176,19 +176,21 @@ def main(argv):
             goals_buf.write(format_line("No completed tasks."))
             goals_not_moved.append(goal)
 
+        goals_buf.write(format_line(""))
+        goals_buf.write(format_line("Prioritized:"))
+
         if total_prioritized > 0:
-            goals_buf.write(format_line(""))
-            goals_buf.write(format_line("Prioritized:"))
             for project in goal_projects[goal]:
                 if project in project_prioritized:
                     goals_buf.write(format_line(project))
                     for task in project_prioritized[project]:
                         goals_buf.write(format_line("    " + task.strip()))
             goals_prioritized.append(goal)
-            goals_buf.write(format_line(""))
         else:
-            goals_buf.write(format_line("No prioritized tasks."))
+            goals_buf.write(format_line("    " + "No prioritized tasks."))
             goals_not_prioritized.append(goal)
+
+        goals_buf.write(format_line(""))
 
     # Check for multiple most and least progressed goals
     for goal in goal_projects:
