@@ -141,9 +141,6 @@ def main(argv):
     most_progressed_project_total = 0
     most_progressed_projects = []
 
-    least_progressed_project_total = None
-    least_progressed_projects = []
-
     for goal in goal_projects:
         total_done = 0
         if goal in goal_completions:
@@ -167,11 +164,6 @@ def main(argv):
             goals_moved.append(goal)
             if total_done > most_progressed_project_total:
                 most_progressed_project_total = total_done
-            if least_progressed_project_total is None:
-                least_progressed_project_total = total_done
-            else:
-                if total_done < least_progressed_project_total:
-                    least_progressed_project_total = total_done
         else:
             goals_buf.write(format_line("No completed tasks."))
             goals_not_moved.append(goal)
@@ -192,15 +184,13 @@ def main(argv):
 
         goals_buf.write(format_line(""))
 
-    # Check for multiple most and least progressed goals
+    # Check for multiple most-progressed goals
     for goal in goal_projects:
         total_done = 0
         if goal in goal_completions:
             total_done = len(goal_completions[goal])
             if total_done == most_progressed_project_total:
                 most_progressed_projects.append(goal)
-            if total_done == least_progressed_project_total:
-                least_progressed_projects.append(goal)
 
     # Write summary buffer
     try:
@@ -211,17 +201,15 @@ def main(argv):
     summary_buf.write(print_header_2("Summary"))
     summary_buf.write(format_line(str(len(last_x_days_of_completions)) + " completed tasks moved " +
         str(len(goals_moved)) + " out of " + str(len(goal_projects)) + " goals forward."))
+    summary_buf.write(format_line('Made the most progress on ' +
+        ('%s' % ' & '.join(map(str, most_progressed_projects))) + '.'))
+    if len(goals_not_moved) > 0:
+        summary_buf.write(format_line('Made no progress on ' + ('%s' % ' & '.join(map(str, goals_not_moved))) + '.'))
+    else:
+        summary_buf.write('.')
+    summary_buf.write(format_line(""))
     summary_buf.write(format_line(str(total_tasks_prioritized) + " tasks are prioritized which will move " +
         str(len(goals_prioritized)) + " out of " + str(len(goal_projects)) + " goals forward."))
-    summary_buf.write(format_line('Made the most progress on ' +
-        ('%s' % ' & '.join(map(str, most_progressed_projects))) +
-        ' and the least on ' + ('%s' % ' & '.join(map(str, least_progressed_projects)))))
-    summary_buf.write(format_line(""))
-    # Write list of goals that had no movement
-    if len(goals_not_moved) > 0:
-        summary_buf.write(format_line("Goals with no progress:"))
-        for goal in goals_not_moved:
-            summary_buf.write(format_line("    " + goal))
     # Write list of goals that are not prioritized
     if len(goals_not_prioritized) > 0:
         summary_buf.write(format_line("Goals that are not prioritized:"))
