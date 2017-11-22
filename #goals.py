@@ -234,7 +234,8 @@ def main(argv):
 
     # Output report
     # Title
-    print(format_line("Goal Review for the past " + str(flags.number_days_int) + " days"))
+    print(format_line("# Goal Review for the past " + str(flags.number_days_int) + " days"))
+    print(format_line("Generated " + datetime.datetime.today().strftime('%b %d, %Y at %H:%M	%Z')))
     # Summary
     print(summary_buf.getvalue())
     summary_buf.close()
