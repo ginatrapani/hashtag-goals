@@ -387,14 +387,15 @@ def get_project_prioritized_tasks_and_events(todotxt_file, events):
     return project_prioritized
 
 def cross_check_projects(projects, goal_projects):
+    cross_check = ''
     for project in projects:
         goal_in_project = False
         for goal in goal_projects:
             if project in goal_projects[goal]:
                 goal_in_project = True
         if goal_in_project == False:
-            return format_line("WARNING: Project " + project + " not in goal.")
-        return ''
+            cross_check = cross_check + format_line("WARNING: Project " + project + " not in goal.")
+    return cross_check
 
 def get_gcal_credentials():
     """Gets valid user credentials from storage.
