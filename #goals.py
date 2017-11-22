@@ -35,6 +35,8 @@ from datetime import datetime, timedelta
 import datetime
 import time
 import collections
+import re
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -97,7 +99,10 @@ def format_line(text):
     if text == "":
         return "\n"
     else:
-        return "    " + text + "\n"
+        return text + "\n"
+
+def format_goal(goal):
+    return re.sub(r"(\w)([A-Z])", r"\1 \2", goal)[1:]
 
 def main(argv):
     try:
@@ -150,7 +155,7 @@ def main(argv):
         if goal in goal_prioritized:
             total_prioritized = len(goal_prioritized[goal])
 
-        goal_header = goal + " - " + str(total_done) + " done, " + str(total_prioritized) + " prioritized"
+        goal_header = format_goal(goal) + " - " + str(total_done) + " done, " + str(total_prioritized) + " prioritized"
         goals_buf.write(print_title(goal_header))
 
         if total_done > 0:
@@ -166,7 +171,7 @@ def main(argv):
                 most_progressed_project_total = total_done
         else:
             goals_buf.write(format_line("No completed tasks."))
-            goals_not_moved.append(goal)
+            goals_not_moved.append(format_goal(goal))
 
         goals_buf.write(format_line(""))
         goals_buf.write(format_line("Prioritized:"))
@@ -201,8 +206,9 @@ def main(argv):
     summary_buf.write(print_header_2("Summary"))
     summary_buf.write(format_line(str(len(last_x_days_of_completions)) + " completed tasks moved " +
         str(len(goals_moved)) + " out of " + str(len(goal_projects)) + " goals forward."))
-    summary_buf.write(format_line('Made the most progress on ' +
-        ('%s' % ' & '.join(map(str, most_progressed_projects))) + '.'))
+    if len(most_progressed_projects) > 0:
+        summary_buf.write(format_line('Made the most progress on ' +
+            ('%s' % ' & '.join(map(str, most_progressed_projects))) + '.'))
     if len(goals_not_moved) > 0:
         summary_buf.write(format_line('Made no progress on ' + ('%s' % ' & '.join(map(str, goals_not_moved))) + '.'))
     else:
@@ -214,7 +220,7 @@ def main(argv):
     if len(goals_not_prioritized) > 0:
         summary_buf.write(format_line("Goals that are not prioritized:"))
         for goal in goals_not_prioritized:
-            summary_buf.write(format_line("    " + goal))
+            summary_buf.write(format_line("    " + format_goal(goal)))
 
     # Warnings
     try:
