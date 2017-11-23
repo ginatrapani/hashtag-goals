@@ -195,7 +195,7 @@ def main(argv):
         if goal in goal_completions:
             total_done = len(goal_completions[goal])
             if total_done == most_progressed_project_total:
-                most_progressed_projects.append(goal)
+                most_progressed_projects.append(format_goal(goal))
 
     # Write summary buffer
     try:
