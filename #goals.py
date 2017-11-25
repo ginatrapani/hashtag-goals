@@ -77,23 +77,11 @@ __history__ = """
 1.0 - Initial version
 """
 
-def separator(c, r=42):
-    sep = ""
-    sep = c * r
-    return format_line(sep)
+def hed_prefix(c):
+    return c * "#"
 
-def print_hed(text, sep):
-    r = len(text)
-    return format_line(text) + separator(sep, r)
-
-def print_title(text):
-    return print_hed(text, "=")
-
-def print_header_1(text):
-    return print_hed(text, "*")
-
-def print_header_2(text):
-    return print_hed(text, "-")
+def hed(text, level):
+    return format_line(hed_prefix(level) + " " + text)
 
 def format_line(text):
     if text == "":
@@ -156,7 +144,7 @@ def main(argv):
             total_prioritized = len(goal_prioritized[goal])
 
         goal_header = format_goal(goal) + " - " + str(total_done) + " done, " + str(total_prioritized) + " prioritized"
-        goals_buf.write(print_title(goal_header))
+        goals_buf.write(hed(goal_header, 3))
 
         if total_done > 0:
             goals_buf.write(format_line(""))
@@ -203,7 +191,7 @@ def main(argv):
     except AttributeError:
         summary_buf = StringIO()
 
-    summary_buf.write(print_header_2("Summary"))
+    summary_buf.write(hed("Summary", 2))
     summary_buf.write(format_line(str(len(last_x_days_of_completions)) + " completed tasks moved " +
         str(len(goals_moved)) + " out of " + str(len(goal_projects)) + " goals forward."))
     if len(most_progressed_projects) > 0:
@@ -232,7 +220,7 @@ def main(argv):
 
     # Output report
     # Title
-    print(format_line("# Goal Review for the past " + str(flags.number_days_int) + " days"))
+    print(format_line(hed("Goal Review for the past " + str(flags.number_days_int) + " days", 1)))
     print(format_line("Generated " + datetime.datetime.today().strftime('%b %d, %Y at %H:%M	%Z')))
     # Summary
     print(summary_buf.getvalue())
