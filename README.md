@@ -1,6 +1,6 @@
 # #goals.py
 
-A goal progress reporter for todo.txt users who do a weekly (or less often) review of tasks and projects.
+A goal progress reporter for todo.txt users who do a weekly (or less often) review of tasks and projects. Connects to Google Calendar for events tagged with a +Project.
 
 ## Usage
     python \#goals.py [todo.txt] [done.txt] [#goals.txt]
