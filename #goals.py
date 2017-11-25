@@ -211,8 +211,6 @@ def main(argv):
             ('%s' % ' & '.join(map(str, most_progressed_projects))) + '.'))
     if len(goals_not_moved) > 0:
         summary_buf.write(format_line('Made no progress on ' + ('%s' % ' & '.join(map(str, goals_not_moved))) + '.'))
-    else:
-        summary_buf.write('.')
     summary_buf.write(format_line(""))
     summary_buf.write(format_line(str(total_tasks_prioritized) + " tasks are prioritized which will move " +
         str(len(goals_prioritized)) + " out of " + str(len(goal_projects)) + " goals forward."))
