@@ -90,7 +90,7 @@ def format_line(text):
         return text + "\n"
 
 def format_goal(goal):
-    return re.sub(r"(\w)([A-Z])", r"\1 \2", goal)[1:]
+    return re.sub(r"(?<=\w)([A-Z])", r" \1", goal)[1:]
 
 def main(argv):
     try:
