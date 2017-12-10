@@ -89,6 +89,19 @@ def br(text):
 def format_goal(goal):
     return re.sub(r"(?<=\w)([A-Z])", r" \1", goal)[1:]
 
+def format_event(event, project):
+    # event summary may or may not have +Project in it; display either way
+    return event['summary'].replace(project, '').strip() + " " + project
+
+def get_event_words(event):
+    words = event['summary'].split()
+    if 'description' in event: # not every event has a description
+        words += event['description'].split()
+    return words
+
+def is_word_project(word):
+    return word[0:2] == "p:" or word[0:2] == "p-" or word[0:1] == "+"
+
 def main(argv):
     try:
         goal_projects = get_goal_projects(flags.goals_file)
@@ -242,9 +255,9 @@ def get_total_prioritized_tasks(todotxt_file):
 def get_total_scheduled_project_events(events):
     total = 0
     for event in events:
-        words = event['summary'].split()
+        words = get_event_words(event)
         for word in words:
-            if word[0:2] == "p:" or word[0:2] == "p-" or word[0:1] == "+":
+            if is_word_project(word):
                 total += 1
     return total
 
@@ -331,10 +344,10 @@ def get_last_x_days_of_completions(done_file, last_x_days):
 def get_last_x_days_of_completions_from_calendar(events):
     last_x_days_of_completions = []
     for event in events:
-        words = event['summary'].split()
+        words = get_event_words(event)
         for word in words:
-            if word[0:2] == "p:" or word[0:2] == "p-" or word[0:1] == "+":
-                last_x_days_of_completions.append(event['summary'])
+            if is_word_project(word):
+                last_x_days_of_completions.append(format_event(event, word))
     return last_x_days_of_completions
 
 # Return an array of projects with their associated tasks.
@@ -343,7 +356,7 @@ def get_project_completions(last_x_days_of_completions):
     for task in last_x_days_of_completions:
         words = task.split()
         for word in words:
-            if word[0:2] == "p:" or word[0:2] == "p-" or word[0:1] == "+":
+            if is_word_project(word):
                 if word not in project_completions:
                     project_completions[word] = [task]
                 else:
@@ -360,20 +373,20 @@ def get_project_prioritized_tasks_and_events(todotxt_file, events):
         if words and words[0].startswith("("):
             is_prioritized = True
         for word in words:
-            if (word[0:2] == "p:" or word[0:2] == "p-" or word[0:1] == "+") and is_prioritized:
+            if is_word_project(word) and is_prioritized:
                 if word not in project_prioritized:
                     project_prioritized[word] = [task]
                 else:
                     project_prioritized[word].append(task)
     f.close()
     for event in events:
-        words = event['summary'].split()
+        words = get_event_words(event)
         for word in words:
-            if (word[0:2] == "p:" or word[0:2] == "p-" or word[0:1] == "+"):
+            if is_word_project(word):
                 if word not in project_prioritized:
-                    project_prioritized[word] = [event['summary']]
+                    project_prioritized[word] = [format_event(event, word)]
                 else:
-                    project_prioritized[word].append(event['summary'])
+                    project_prioritized[word].append(format_event(event, word))
     return project_prioritized
 
 def cross_check_projects(projects, goal_projects):
