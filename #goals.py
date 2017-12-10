@@ -81,13 +81,10 @@ def hed_prefix(c):
     return c * "#"
 
 def hed(text, level):
-    return format_line(hed_prefix(level) + " " + text)
+    return br(hed_prefix(level) + " " + text)
 
-def format_line(text):
-    if text == "":
-        return "\n"
-    else:
-        return text + "\n"
+def br(text):
+    return text + "\n"
 
 def format_goal(goal):
     return re.sub(r"(?<=\w)([A-Z])", r" \1", goal)[1:]
@@ -147,35 +144,35 @@ def main(argv):
         goals_buf.write(hed(goal_header, 3))
 
         if total_done > 0:
-            goals_buf.write(format_line(""))
-            goals_buf.write(format_line("Completed:"))
+            goals_buf.write(br(""))
+            goals_buf.write(br("Completed:"))
         for project in goal_projects[goal]:
             if project in project_completions:
                 for task in project_completions[project]:
-                    goals_buf.write(format_line(task.strip()))
+                    goals_buf.write(br(task.strip()))
         if total_done > 0:
             goals_moved.append(goal)
             if total_done > most_progressed_project_total:
                 most_progressed_project_total = total_done
         else:
-            goals_buf.write(format_line("No completed tasks."))
+            goals_buf.write(br("No completed tasks."))
             goals_not_moved.append(format_goal(goal))
 
-        goals_buf.write(format_line(""))
-        goals_buf.write(format_line("Prioritized:"))
+        goals_buf.write(br(""))
+        goals_buf.write(br("Prioritized:"))
 
         if total_prioritized > 0:
             for project in goal_projects[goal]:
                 if project in project_prioritized:
-                    goals_buf.write(format_line(project))
+                    goals_buf.write(br(project))
                     for task in project_prioritized[project]:
-                        goals_buf.write(format_line("    " + task.strip()))
+                        goals_buf.write(br("    " + task.strip()))
             goals_prioritized.append(goal)
         else:
-            goals_buf.write(format_line("    " + "No prioritized tasks."))
+            goals_buf.write(br("    " + "No prioritized tasks."))
             goals_not_prioritized.append(goal)
 
-        goals_buf.write(format_line(""))
+        goals_buf.write(br(""))
 
     # Check for multiple most-progressed goals
     for goal in goal_projects:
@@ -192,21 +189,21 @@ def main(argv):
         summary_buf = StringIO()
 
     summary_buf.write(hed("Summary", 2))
-    summary_buf.write(format_line(str(len(last_x_days_of_completions)) + " completed tasks moved " +
+    summary_buf.write(br(str(len(last_x_days_of_completions)) + " completed tasks moved " +
         str(len(goals_moved)) + " out of " + str(len(goal_projects)) + " goals forward."))
     if len(most_progressed_projects) > 0:
-        summary_buf.write(format_line('Made the most progress on ' +
+        summary_buf.write(br('Made the most progress on ' +
             ('%s' % ' & '.join(map(str, most_progressed_projects))) + '.'))
     if len(goals_not_moved) > 0:
-        summary_buf.write(format_line('Made no progress on ' + ('%s' % ' & '.join(map(str, goals_not_moved))) + '.'))
-    summary_buf.write(format_line(""))
-    summary_buf.write(format_line(str(total_tasks_prioritized) + " tasks are prioritized which will move " +
+        summary_buf.write(br('Made no progress on ' + ('%s' % ' & '.join(map(str, goals_not_moved))) + '.'))
+    summary_buf.write(br(""))
+    summary_buf.write(br(str(total_tasks_prioritized) + " tasks are prioritized which will move " +
         str(len(goals_prioritized)) + " out of " + str(len(goal_projects)) + " goals forward."))
     # Write list of goals that are not prioritized
     if len(goals_not_prioritized) > 0:
-        summary_buf.write(format_line("Goals that are not prioritized:"))
+        summary_buf.write(br("Goals that are not prioritized:"))
         for goal in goals_not_prioritized:
-            summary_buf.write(format_line("    " + format_goal(goal)))
+            summary_buf.write(br("    " + format_goal(goal)))
 
     # Warnings
     try:
@@ -220,8 +217,8 @@ def main(argv):
 
     # Output report
     # Title
-    print(format_line(hed("Goal Review for the past " + str(flags.number_days_int) + " days", 1)))
-    print(format_line("Generated " + datetime.datetime.today().strftime('%b %d, %Y at %H:%M	%Z')))
+    print(br(hed("Goal Review for the past " + str(flags.number_days_int) + " days", 1)))
+    print(br("Generated " + datetime.datetime.today().strftime('%b %d, %Y at %H:%M	%Z')))
     # Summary
     print(summary_buf.getvalue())
     summary_buf.close()
@@ -291,17 +288,17 @@ def get_goal_projects(goals_file):
                         current_goal = word
                         goal_projects[current_goal] = []
                     else:
-                        raise ValueError(format_line("GOALS FILE FORMAT ERROR: The first word on each line in %s should be a #goal, this word is %s."% (goals_file,word,)))
+                        raise ValueError(br("GOALS FILE FORMAT ERROR: The first word on each line in %s should be a #goal, this word is %s."% (goals_file,word,)))
                 else:
                     # Project
                     if word[0:1] == "+":
                         goal_projects[current_goal].append(word)
                     else:
-                        raise ValueError(format_line("GOALS FILE FORMAT ERROR: Any words following a #goal on each line in %s should be a +project, this word is %s."% (goals_file,word,)))
+                        raise ValueError(br("GOALS FILE FORMAT ERROR: Any words following a #goal on each line in %s should be a +project, this word is %s."% (goals_file,word,)))
         f.close()
         return goal_projects
     except IOError:
-        print(format_line("ERROR: The file %s could not be read."% (goals_file, )))
+        print(br("ERROR: The file %s could not be read."% (goals_file, )))
         parser.print_help()
         sys.exit(2)
 
@@ -326,7 +323,7 @@ def get_last_x_days_of_completions(done_file, last_x_days):
         f.close()
         return last_x_days_of_completions
     except IOError:
-        print(format_line("ERROR:  The file named %s could not be read."% (done_file, )))
+        print(br("ERROR:  The file named %s could not be read."% (done_file, )))
         parser.print_help()
         sys.exit(2)
 
@@ -387,7 +384,7 @@ def cross_check_projects(projects, goal_projects):
             if project in goal_projects[goal]:
                 goal_in_project = True
         if goal_in_project == False:
-            cross_check = cross_check + format_line("WARNING: Project " + project + " not in goal.")
+            cross_check = cross_check + br("WARNING: Project " + project + " not in goal.")
     return cross_check
 
 def get_gcal_credentials():
